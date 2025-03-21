@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DemoBlazorSSRUrlShortner.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DemoBlazorSSRUrlShortner.Data
 {

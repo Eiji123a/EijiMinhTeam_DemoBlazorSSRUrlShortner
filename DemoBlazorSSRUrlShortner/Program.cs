@@ -1,10 +1,21 @@
 using DemoBlazorSSRUrlShortner.Components;
+using DemoBlazorSSRUrlShortner.Data;
+using DemoBlazorSSRUrlShortner.Repository;
+using DemoBlazorSSRUrlShortner.Services;
+using DemoBlazorSSRUrlShortner.UrlHelpers;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddDbContext<AppDbcontext>(option => 
+option.UseSqlite(builder.Configuration.GetConnectionString("Sqlite")));
+builder.Services.AddScoped<IUrlRepository, UrlRepository>();
+builder.Services.AddScoped<IUrlHelper, UrlHelper>();
+builder.Services.AddScoped<IUrlService, UrlService>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
