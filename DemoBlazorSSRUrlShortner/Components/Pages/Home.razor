@@ -1,4 +1,9 @@
 ﻿@page "/"
+@using DemoBlazorSSRUrlShortner.Services
+@using NetcodeHub.Packages.Extensions.Clipboard
+@inject IUrlService urlService
+@inject IClipboardService clipboardService
+@rendermode InteractiveServer
 
 <div class="hero_area">
     <!-- header section strats -->
@@ -7,11 +12,13 @@
             <nav class="navbar navbar-expand-lg custom_nav-container ">
                 <a class="navbar-brand" href="index.html">
                     <span>
-                        Hirevac
+                        URL Shortener
                     </span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" 
+                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
+                aria-expanded="false" aria-label="Toggle navigation">
                     <span class=""> </span>
                 </button>
 
@@ -27,7 +34,7 @@
                             <a class="nav-link" href="job.html">Jobs</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="freelancer.html">Freelancers</a>
+                            <a class="nav-link" href="freelancer.html">Contact</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">
@@ -63,12 +70,13 @@
                 <div class="col-lg-7 col-md-8 mx-auto">
                     <div class="detail-box">
                         <h1>
-                            Build Your <br>
-                            POWERFUL CAREER
+                            Easily Shorten <br>
+                            Your lengthy Link 
                         </h1>
                         <p>
-                            when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal
-                            distribution of letters, as opposed to
+                            This app is a URL Shortener built with .NET 9 Blazor Interactive Server.
+                            Its take a long URL, vadidates it, generates a unique short code, 
+                            and appends it to the server's domain to craete a shortened, shareable link.
                         </p>
                     </div>
                 </div>
@@ -79,54 +87,39 @@
                         <div class="col">
                             <form>
                                 <div class="form-row ">
-                                    <div class="form-group col-lg-3">
-                                        <input type="text" class="form-control" id="inputPatientName" placeholder="Keywords">
+                                    <div class="form-group col-lg-5">
+                                        <input type="text" class="form-control" 
+                                        @bind="LongUrl" placeholder="LongUrl">
                                     </div>
-                                    <div class="form-group col-lg-3">
-                                        <select name="" class="form-control wide" id="inputDoctorName">
-                                            <option value="Normal distribution ">All Locations</option>
-                                            <option value="Normal distribution ">Location 2 </option>
-                                            <option value="Normal distribution ">Location 3 </option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-lg-3">
-                                        <select name="" class="form-control wide" id="inputDepartmentName">
-                                            <option value="Normal distribution ">SEO Expert </option>
-                                            <option value="Normal distribution ">Web Designer </option>
-                                            <option value="Normal distribution ">Web Developer</option>
-                                            <option value="Normal distribution ">Graphic Deesigner</option>
-                                            <option value="Normal distribution ">Content Writer</option>
-                                        </select>
+                                    <div class="form-group col-lg-4">
+                                        <div class="d-flex justify-content-around">
+                                            <input type="text"
+                                            class="form-control txtbox" disabled
+                                            style="border-bottom-right-radius: 0; border-top-right-radius: 0;"
+                                            placeholder="Your short url" aria-label="Your short url"
+                                            aria-describedby="basic-addon2" value="@Value" />
+                                            <span class="input-group-text copy" id="basic-addon2">
+                                                @if (!Copied)
+                                                {
+                                                    <i class="fa fa-copy text-info" style="cursor:pointer" 
+                                                    title="Copy" @onclick=CopyBtnClicked></i>
+                                                }
+                                                else 
+                                                {
+                                                    <span class="text-success"><i class="fa fa-check" title="Copied"></i> Copied</span>
+                                                }
+                                            </span>
+                                        </div>
                                     </div>
                                     <div class="form-group col-lg-3">
                                         <div class="btn-box">
-                                            <button type="submit" class="btn ">Submit Now</button>
+                                            <button type="button" class="btn" @onclick=ShortenUrlBtnClicked>Shorten Url</button>
                                         </div>
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
-                    <ul class="job_check_list">
-                        <li class=" ">
-                            <input id="checkbox_qu_01" type="checkbox" class="styled-checkbox">
-                            <label for="checkbox_qu_01">
-                                Freelancer
-                            </label>
-                        </li>
-                        <li class=" ">
-                            <input id="checkbox_qu_02" type="checkbox" class="styled-checkbox">
-                            <label for="checkbox_qu_02">
-                                Part Time
-                            </label>
-                        </li>
-                        <li class=" ">
-                            <input id="checkbox_qu_03" type="checkbox" class="styled-checkbox">
-                            <label for="checkbox_qu_03">
-                                Full Time
-                            </label>
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -138,9 +131,57 @@
 <footer class="footer_section">
     <div class="container">
         <p>
-            &copy; <span id="displayYear"></span> All Rights Reserved By
-            <a href="https://html.design/">Free Html Templates</a>
+            &copy; <span id="displayYear"></span> Netcode-Hub URL Shortener
         </p>
     </div>
 </footer>
 <!-- footer section -->
+
+<style>
+    .copy {
+    border-bottom-right-radius: 10px; 
+    border-top-right-radius: 10px; 
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    }
+
+    .txtbox{
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+    cursor: auto;
+    }
+</style>
+
+@code{
+    bool Copied = false;
+    string Value = string.Empty;
+    string LongUrl = string.Empty;
+
+    async Task CopyBtnClicked()
+    {
+        if(Value.Equals("Invalid Url Provided") || string.IsNullOrEmpty(Value))
+        {
+            Value = "Nothing to be copied";
+            Copied = false;
+            return;
+        }
+        await clipboardService.CopyAsync(Value);
+        Copied = true;
+    }
+
+    async Task ShortenUrlBtnClicked()
+    {
+        Value = String.Empty;
+        Copied = false;
+        if (string.IsNullOrEmpty(LongUrl))
+            return;
+
+        string shortcode = await urlService.ShortenUrlAsync(LongUrl)!; 
+        if(string.IsNullOrEmpty(shortcode))
+        {
+            Value = "Invalid Url Provided";
+            return;
+        }
+        Value = shortcode;
+    }
+}
