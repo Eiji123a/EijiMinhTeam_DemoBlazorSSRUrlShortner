@@ -1,4 +1,4 @@
-﻿using DemoBlazorSSRUrlShortner.Models;
+using DemoBlazorSSRUrlShortner.Models;
 using DemoBlazorSSRUrlShortner.Repository;
 using DemoBlazorSSRUrlShortner.UrlHelpers;
 
