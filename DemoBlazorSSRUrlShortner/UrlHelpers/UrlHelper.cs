@@ -1,4 +1,4 @@
-﻿namespace DemoBlazorSSRUrlShortner.UrlHelpers
+namespace DemoBlazorSSRUrlShortner.UrlHelpers
 {
     public class UrlHelper(IHttpContextAccessor httpContextAccessor) : IUrlHelper
     {
@@ -6,7 +6,7 @@
         {
             var request = httpContextAccessor.HttpContext?.Request;
             var baseUrl = $"{request!.Scheme}://{request.Host}";
-            return $"{baseUrl}{shortcode}";
+            return $"{baseUrl}/{shortcode}";
         }
 
         public string GenerateShortcode()
